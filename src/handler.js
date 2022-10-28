@@ -1,15 +1,15 @@
 const { nanoid } = require('nanoid');
 const notes = require('./notes');
 
-const addNoteHandler = (request, h) => {
+const addNotesHandler = (request, h) => {
   const { title, tags, body } = request.payload;
 
   const id = nanoid(16);
-  const createdAt = new Date().toISOString();
-  const updatedAt = createdAt;
+  const createAt = new Date().toISOString();
+  const updateAt = createAt;
 
   const newNote = {
-    title, tags, body, id, createdAt, updatedAt,
+    title, tags, body, id, createAt, updateAt,
   };
 
   notes.push(newNote);
@@ -19,7 +19,7 @@ const addNoteHandler = (request, h) => {
   if (isSuccess) {
     const response = h.response({
       status: 'success',
-      message: 'Catatan berhasil ditambahkan',
+      message: 'Catatan berhasil ditambahkan!',
       data: {
         noteId: id,
       },
@@ -27,9 +27,10 @@ const addNoteHandler = (request, h) => {
     response.code(201);
     return response;
   }
+
   const response = h.response({
     status: 'fail',
-    message: 'Catatan gagal ditambahkan',
+    message: 'catatan gagal ditambahkan',
   });
   response.code(500);
   return response;
@@ -42,12 +43,12 @@ const getAllNotesHandler = () => ({
   },
 });
 
-const getNoteByIdHandler = (request, h) => {
+const getNotesByIdHandler = (request, h) => {
   const { id } = request.params;
- 
-  const note = notes.filter((n) => n.id === id)[0];
- 
- if (note !== undefined) {
+
+  const note = notes.find((n) => n.id === id);
+
+  if (note !== undefined) {
     return {
       status: 'success',
       data: {
@@ -55,7 +56,7 @@ const getNoteByIdHandler = (request, h) => {
       },
     };
   }
- 
+
   const response = h.response({
     status: 'fail',
     message: 'Catatan tidak ditemukan',
@@ -66,20 +67,21 @@ const getNoteByIdHandler = (request, h) => {
 
 const editNoteByIdHandler = (request, h) => {
   const { id } = request.params;
- 
+
   const { title, tags, body } = request.payload;
-  const updatedAt = new Date().toISOString();
- 
-  const index = notes.findIndex((note) => note.id === id);
- 
+  const updateAt = new Date().toISOString();
+
+  const index = notes.findIndex((n) => n.id === id);
+
   if (index !== -1) {
     notes[index] = {
       ...notes[index],
       title,
       tags,
       body,
-      updatedAt,
+      updateAt,
     };
+
     const response = h.response({
       status: 'success',
       message: 'Catatan berhasil diperbarui',
@@ -87,6 +89,7 @@ const editNoteByIdHandler = (request, h) => {
     response.code(200);
     return response;
   }
+
   const response = h.response({
     status: 'fail',
     message: 'Gagal memperbarui catatan. Id tidak ditemukan',
@@ -117,11 +120,5 @@ const deleteNoteByIdHandler = (request, h) => {
   response.code(404);
   return response;
 };
- 
-module.exports = {
-  addNoteHandler,
-  getAllNotesHandler,
-  getNoteByIdHandler,
-  editNoteByIdHandler,
-  deleteNoteByIdHandler,
-};
+
+module.exports = { getAllNotesHandler, getNotesByIdHandler, addNotesHandler, editNoteByIdHandler, deleteNoteByIdHandler};
